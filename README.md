@@ -1,6 +1,6 @@
 # Direct CO₂ Hydrogenation to Light Paraffins — Kinetic Model
 
-Python implementation of a literature kinetic model for the direct hydrogenation of CO₂/CO to light hydrocarbons through a methanol intermediate.
+Python implementation of a literature kinetic model for the direct hydrogenation of CO₂/CO to light hydrocarbons through methanol as intermediate via a bifunctional catalyst.
 
 The model is based on:
 
@@ -72,53 +72,37 @@ The main calculation is contained in three Python files:
 
 The model tracks ten species:
 
-```text
-CO2, H2, CH3OH, H2O, CO, C2H6, C3H8, C4H10, CH4, He
-```
+CO₂, H₂, CH₃OH, H₂O, CO, C₂H₆, C₃H₈, C₄H₁₀, CH₄ and He.
 
 The kinetic network contains seven reactions:
 
-1. CO₂ hydrogenation to methanol
+1. **CO₂ hydrogenation to methanol**
 
-   $$
-   \mathrm{CO_2 + 3H_2 \rightleftharpoons CH_3OH + H_2O}
-   $$
+   <p align="center">CO₂ + 3 H₂ ⇌ CH₃OH + H₂O</p>
 
-2. Reverse water-gas shift
+2. **Reverse water-gas shift**
 
-   $$
-   \mathrm{CO_2 + H_2 \rightleftharpoons CO + H_2O}
-   $$
+   <p align="center">CO₂ + H₂ ⇌ CO + H₂O</p>
 
-3. CO hydrogenation to methanol
+3. **CO hydrogenation to methanol**
 
-   $$
-   \mathrm{CO + 2H_2 \rightleftharpoons CH_3OH}
-   $$
+   <p align="center">CO + 2 H₂ ⇌ CH₃OH</p>
 
-4. CO methanation
+4. **CO methanation**
 
-   $$
-   \mathrm{CO + 3H_2 \rightarrow CH_4 + H_2O}
-   $$
+   <p align="center">CO + 3 H₂ → CH₄ + H₂O</p>
 
-5. Formation of C₂ paraffin
+5. **Formation of C₂ paraffin**
 
-   $$
-   \mathrm{2CH_3OH + H_2 \rightarrow C_2H_6 + 2H_2O}
-   $$
+   <p align="center">2 CH₃OH + H₂ → C₂H₆ + 2 H₂O</p>
 
-6. Formation of C₃ paraffin
+6. **Formation of C₃ paraffin**
 
-   $$
-   \mathrm{3CH_3OH + H_2 \rightarrow C_3H_8 + 3H_2O}
-   $$
+   <p align="center">3 CH₃OH + H₂ → C₃H₈ + 3 H₂O</p>
 
-7. Formation of C₄ paraffin
+7. **Formation of C₄ paraffin**
 
-   $$
-   \mathrm{4CH_3OH + H_2 \rightarrow C_4H_{10} + 4H_2O}
-   $$
+   <p align="center">4 CH₃OH + H₂ → C₄H₁₀ + 4 H₂O</p>
 
 The first three reactions contain thermodynamic equilibrium driving-force terms. The metal-function reactions include CO₂/H₂ adsorption terms, while the methanol-to-hydrocarbon reactions include inhibition by water.
 
@@ -128,15 +112,13 @@ The complete rate expressions and kinetic parameters are implemented in `model/k
 
 The reactor is represented as a steady-state, isothermal and isobaric packed-bed reactor. Catalyst mass is used as the independent coordinate:
 
-$$
-\frac{dF_i}{dW} = r_i
-$$
+<p align="center"><i>dF<sub>i</sub> / dW = r<sub>i</sub></i></p>
 
-with:
+where:
 
-* \(F_i\): molar flow of species \(i\) [mol/s]
-* \(W\): catalyst mass [kg]
-* \(r_i\): net formation rate of species \(i\) [mol/(kg\(_{cat}\) s)]
+* *F<sub>i</sub>* = molar flow of species *i* [mol/s]
+* *W* = catalyst mass [kg]
+* *r<sub>i</sub>* = net formation rate of species *i* [mol/(kg<sub>cat</sub> s)]
 
 The coupled species balances are integrated using `scipy.integrate.solve_ivp` with the BDF method.
 
@@ -167,11 +149,9 @@ The COx feed composition is defined through `CO2_FRACTION_IN_COX`:
 
 The space time is defined as:
 
-$$
-\tau = \frac{W}{F_{CO_x}}
-$$
+<p align="center"><i>τ = W / F<sub>COx</sub></i></p>
 
-where \(W\) is the catalyst mass and \(F_{CO_x}\) is the combined inlet molar flow of CO₂ and CO.
+where *W* is the catalyst mass and *F<sub>COx</sub>* is the combined inlet molar flow of CO₂ and CO.
 
 The notebook shows the inlet composition, reaction rates, reactor profiles, outlet composition and example validation results.
 
@@ -230,4 +210,5 @@ The calculation can be followed in the following order:
 5. `reproduce_validation.py` — validation cases, literature data and plotting
 
 The model files contain the complete calculation from operating conditions to reactor outlet and validation.
+
 
