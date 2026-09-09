@@ -1,4 +1,4 @@
-# Direct CO₂ Hydrogenation to Light Paraffins — Kinetic Model
+# Direct CO₂ Hydrogenation to Light Paraffins: Kinetic Model
 
 Python implementation of a literature kinetic model for the direct hydrogenation of CO₂/CO to light hydrocarbons through methanol as intermediate via a bifunctional catalyst.
 
