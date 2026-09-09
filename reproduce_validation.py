@@ -1,12 +1,11 @@
-"""Reproduce the validation figures used in this project.
+"""Validation and literature-comparison plots for the kinetic reactor model.
 
-Run from the repository root:
+S4 and S5 compare the calculated carbon-basis product distributions with
+digitized data from Cordero-Lanzac et al. (2023). Figure 5a reproduces the
+water buildup along the catalyst bed, while Figure 5b shows the forward and
+reverse reaction-rate contributions for different COx feeds.
 
-    python reproduce_validation.py
-
-The script reads the digitized S4/S5 data from ./data, solves the reactor under
-those operating conditions, saves the four figures in ./figures, and displays
-them one after another.
+Digitized data are read from ./data and generated figures are saved in ./figures.
 """
 
 from pathlib import Path
@@ -35,12 +34,12 @@ DATA_DIR = ROOT / "data"
 FIGURE_DIR = ROOT / "figures"
 FIGURE_DIR.mkdir(exist_ok=True)
 
-# Set to False if you only want to save the figures without opening plot windows.
+# Display figures after saving (False: save only).
 SHOW_FIGURES = True
 
 VALIDATION_SPECIES = ["CO2", "CO", "C1", "C2", "C3", "C4"]
 
-# These are the exact operating conditions used in the original S4/S5 code.
+# S4/S5 operating conditions and corresponding digitized data files.
 S4_CASES = [
     ("S4a", 325, 40, 1.0, 0.0, 33, "S4a_325C_40bar_CO2.csv"),
     ("S4b", 350, 30, 1.0, 0.0, 17, "S4b_350C_30bar_CO2.csv"),
@@ -61,7 +60,7 @@ S5_CASES = [
 
 
 def load_validation_csv(filename):
-    """Load the original two-row CSV header format (species above X/Y pairs)."""
+    """Read digitized data with species in the first header row and X/Y in the second."""
     df = pd.read_csv(DATA_DIR / filename, header=[0, 1])
 
     top = df.columns.get_level_values(0).astype(str)
@@ -85,20 +84,19 @@ def simulate_space_time_curve(
     tau_max,
     n_points,
 ):
-    """Calculate the model curve over the requested space-time range.
+    """Calculate the carbon-basis composition over a space-time range.
 
-    The kinetic equations depend on gas composition (partial pressures), not
-    the absolute flow scale. Therefore a normalized inlet with F_COx = 1 mol/s
-    can represent the complete space-time sweep in one reactor integration.
-    This changes only the numerical scaling, not the kinetic equations or the
-    resulting composition.
+    The rate expressions depend on gas composition and partial pressures rather
+    than the absolute flow scale. A normalized inlet with F_COx = 1 mol/s is
+    therefore used to calculate the complete space-time profile in one reactor
+    integration.
     """
     H2_over_COx = 3.0
     helium_fraction = 0.2
 
     tau = np.linspace(0.0, tau_max, n_points)
 
-    # Normalized inlet: F_COx = 1 mol/s.
+    # Normalize the total COx inlet flow to 1 mol/s.
     F_in = np.zeros(10)
     F_in[0] = CO2_fraction_in_COx
     F_in[4] = CO_fraction_in_COx
@@ -107,8 +105,7 @@ def simulate_space_time_curve(
     reactive_flow = F_in[0] + F_in[4] + F_in[1]
     F_in[9] = helium_fraction / (1.0 - helium_fraction) * reactive_flow
 
-    # For the original definition tau = W_g / F_COx,h, normalization gives
-    # W_normalized [kg] = 3.6 * tau.
+    # From tau = W_g / F_COx,h, F_COx = 1 mol/s gives W [kg] = 3.6 * tau.
     W_points = 3.6 * tau
 
     _, F_profile = solve_reactor(
@@ -138,11 +135,11 @@ def plot_validation_panel(ax, T_C, P_bar, CO2_fraction, CO_fraction, tau_max, n_
         n_points,
     )
 
-    # Model curves
+    # Calculated carbon-basis composition profiles
     for species in VALIDATION_SPECIES:
         ax.plot(tau, curves[species], label=f"Model {label_with_subscript(species)}")
 
-    # Digitized validation points
+    # Digitized literature data
     data = load_validation_csv(csv_file)
     for species in VALIDATION_SPECIES:
         x = data[(species, "X")]
@@ -221,10 +218,10 @@ def plot_S5_validation():
 
 
 # -----------------------------------------------------------------------------
-# Figure 5a: water buildup through the catalyst bed
+# Figure 5a: water buildup along the catalyst bed
 # -----------------------------------------------------------------------------
 def create_GHSV_inlet(CO2_fraction_in_COx, T_C, P_bar, H2_over_COx=3.0, GHSV=3000.0, catalyst_mass_g=0.1, helium_fraction=0.2):
-    """Feed calculation kept in the same arithmetic form as the original notebook."""
+    """Calculate inlet molar flows from GHSV using the original model formulation."""
     normal_molar_volume = 22414.0
     y_rest = 1.0 - helium_fraction
     denominator = H2_over_COx + 1.0 + (helium_fraction / y_rest) * (1.0 + H2_over_COx)
@@ -295,7 +292,7 @@ def plot_Figure5a_water_profile():
 
 
 # -----------------------------------------------------------------------------
-# Figure 5b: forward and reverse reaction-rate components at the outlet
+# Figure 5b: forward and reverse reaction-rate contributions at the outlet
 # -----------------------------------------------------------------------------
 def calculate_forward_reverse_rate_components(F, T_K, P_bar):
     F_total = np.sum(F)
@@ -324,7 +321,7 @@ def calculate_forward_reverse_rate_components(F, T_K, P_bar):
     r5 = k[5] * p[2] / denominator_zeolite
     r6 = k[6] * p[2] / denominator_zeolite
 
-    # mol/g_cat/h -> mol/kg_cat/h
+    # Convert reaction rates from mol/(g_cat h) to mol/(kg_cat h).
     return {
         "CO2_MeOH_forward": 1000.0 * r0_forward,
         "CO2_MeOH_reverse": 1000.0 * r0_reverse,
@@ -452,8 +449,7 @@ def main():
         fig, path = make_plot()
         print(f"Saved: {path.relative_to(ROOT)}")
 
-        # With a normal desktop Matplotlib backend this opens one figure at a
-        # time. Close the window to continue to the next figure.
+        # Figures are displayed sequentially after being saved.
         if SHOW_FIGURES:
             plt.show()
         plt.close(fig)
