@@ -1,0 +1,15 @@
+cff-version: 1.2.0
+message: "If you use this software in academic or research work, please cite this repository and the original kinetic-model publication referenced in the README."
+title: "Literature-Based Reactor Modeling for the Conversion of CO2 to Hydrocarbons"
+type: software
+authors:
+  - family-names: "Sideris"
+    given-names: "Dimitrios"
+license: GPL-3.0
+abstract: "Python implementation and validation of a literature-based kinetic packed-bed reactor model for CO2/CO hydrogenation to light hydrocarbons through a methanol intermediate."
+keywords:
+  - "CO2 hydrogenation"
+  - "kinetic modeling"
+  - "packed-bed reactor"
+  - "process engineering"
+  - "Python"
