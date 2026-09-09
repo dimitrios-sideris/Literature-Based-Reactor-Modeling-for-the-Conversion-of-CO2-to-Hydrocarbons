@@ -211,4 +211,14 @@ The calculation can be followed in the following order:
 
 The model files contain the complete calculation from operating conditions to reactor outlet and validation.
 
+## Citation
+
+If this implementation is used in academic or research work, please cite this repository as well as the original kinetic-model publication referenced above.
+
+Citation metadata are provided in [`CITATION.cff`](CITATION.cff).
+
+## License
+
+The Python implementation in this repository is licensed under the GNU General Public License v3.0. See [`LICENSE`](LICENSE) for details.
+
 
